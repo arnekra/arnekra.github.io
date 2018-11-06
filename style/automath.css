@@ -1,0 +1,95 @@
+
+body {
+	font-size: 5vw;
+}
+
+div.answer-container {
+	width:100%;
+}
+
+div.score-board {
+	width:100%;
+}
+
+#task {
+	width: 100%;
+	padding:1vw;
+	box-sizing: border-box;
+}
+
+div.answer-container > div {
+	width:8%;
+	font-size: 5vw;
+	text-align: center;
+	margin:1%;
+	border-width: 2px;
+	border-style: solid;
+	border-radius:15px;
+	float: left;
+	box-sizing: border-box;
+	cursor: pointer;
+}
+
+div.time {
+	width: 15%;
+	padding:1vw;
+	box-sizing: border-box;
+	float: right;
+	text-align: right;
+}
+
+div.score {
+	width: 40%;
+	padding:1vw;
+	box-sizing: border-box;
+	float: left;
+}
+
+body.light div.task-container {
+	width: 100%;
+	background-color: #eee;
+}
+
+body.light div.active-task {
+	color: #333;
+}
+
+body.light div.inactive-task {
+	color: #ccc;
+}
+
+body.light div.answer-container > div.error {
+	animation:blinkingErrorLight 0.8s infinite;
+}
+
+@keyframes blinkingErrorLight{
+	0%{		background-color: #ddd;	}
+	50%{	background-color: red;	}
+	100%{	background-color: #ddd;	}
+}
+
+body.light div.answer-container > div.correct {
+	background-color: green;
+}
+
+body.light div.answer-container > div.success {
+	animation:blinkingSuccessLight 0.8s infinite;
+}
+
+@keyframes blinkingSuccessLight{
+	0%{		background-color: #ddd;	}
+	50%{	background-color: green;	}
+	100%{	background-color: #ddd;	}
+}
+
+body.light div.answer-container > div {
+	background-color: #ddd;
+	border-color: #333;
+	color: #333;
+}
+
+body.light div.answer-container > div:hover {
+	background-color: #999;
+	border-color: #000;
+	color: #000;
+}
