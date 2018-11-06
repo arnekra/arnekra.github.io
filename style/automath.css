@@ -38,7 +38,7 @@ div.time {
 	text-align: right;
 }
 
-div.score {
+div.score, div.score-hilite {
 	width: 40%;
 	padding:1vw;
 	box-sizing: border-box;
@@ -50,12 +50,14 @@ body.light div.task-container {
 	background-color: #eee;
 }
 
-body.light div.active-task {
+body.light div.active {
 	color: #333;
+	border-color: #333;
 }
 
-body.light div.inactive-task {
+body.light div.inactive {
 	color: #ccc;
+	border-color: #ccc;
 }
 
 body.light div.answer-container > div.error {
@@ -63,9 +65,9 @@ body.light div.answer-container > div.error {
 }
 
 @keyframes blinkingErrorLight{
-	0%{		background-color: #ddd;	}
-	50%{	background-color: red;	}
-	100%{	background-color: #ddd;	}
+	0%{		background-color: red;	}
+	50%{	background-color: #ddd;	}
+	100%{	background-color: red;	}
 }
 
 body.light div.answer-container > div.correct {
@@ -77,18 +79,30 @@ body.light div.answer-container > div.success {
 }
 
 @keyframes blinkingSuccessLight{
-	0%{		background-color: #ddd;	}
-	50%{	background-color: green;	}
-	100%{	background-color: #ddd;	}
+	0%{		background-color: green;	}
+	50%{	background-color: #ddd;	}
+	100%{	background-color: green;	}
+}
+
+body.light div.score-hilite {
+	animation:blinkingHiliteScoreLight 0.8s infinite;
+}
+
+@keyframes blinkingHiliteScoreLight{
+	0%{		color: green;	}
+	50%{	color: #ddd;	}
+	100%{	color: green;	}
+}
+
+body.light div.score-board {
+	color: #333;
 }
 
 body.light div.answer-container > div {
 	background-color: #ddd;
-	border-color: #333;
-	color: #333;
 }
 
-body.light div.answer-container > div:hover {
+body.light div.active div.answer-container > div:hover {
 	background-color: #999;
 	border-color: #000;
 	color: #000;

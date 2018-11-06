@@ -1,6 +1,7 @@
 "use strict";
 function register() {
     let taskDiv = document.getElementById("task");
+    let appDiv = document.getElementById("application");
     let remainingTime = 600;
     let score = 0;
     let successCount = 0;
@@ -11,7 +12,7 @@ function register() {
         let right = comb % 10;
         let answer = left + right;
         taskDiv.setAttribute("answer", answer.toString());
-        taskDiv.setAttribute("class", "active-task");
+        appDiv.setAttribute("class", "active");
         taskDiv.innerText = left.toString() + " + " + right.toString() + " =";
     }
     function updateScore() {
@@ -25,11 +26,16 @@ function register() {
     }
     function startTimer() {
         setInterval(function () {
-            if (taskDiv.getAttribute("class") == "active-task" && remainingTime > 0) {
+            if (appDiv.getAttribute("class") == "active" && remainingTime > 0) {
                 remainingTime -= 1;
                 updateTime();
                 if (remainingTime == 0) {
-                    taskDiv.setAttribute("class", "inactive-task");
+                    appDiv.setAttribute("class", "inactive");
+                    let scoreDiv = document.getElementById("score");
+                    scoreDiv.setAttribute("class", "score-hilite");
+                    setTimeout(function () {
+                        scoreDiv.setAttribute("class", "score");
+                    }, 2500);
                 }
             }
         }, 100);
@@ -37,9 +43,9 @@ function register() {
     for (let i = 1; i <= 20; ++i) {
         let btn = document.getElementById("a" + i);
         btn.addEventListener("click", function (ev) {
-            if (taskDiv.getAttribute("class") == "inactive-task")
+            if (appDiv.getAttribute("class") == "inactive")
                 return;
-            taskDiv.setAttribute("class", "inactive-task");
+            appDiv.setAttribute("class", "inactive");
             let answer = taskDiv.getAttribute("answer") || "";
             let ok = i.toString() == answer;
             let successButton = ok ? btn : document.getElementById("a" + answer);
