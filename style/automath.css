@@ -30,12 +30,43 @@ div.answer-container > div {
 	cursor: pointer;
 }
 
+div.start {
+	text-align: center;
+	margin:1%;
+	font-size: 4vw;
+	border-width: 2px;
+	border-style: solid;
+	border-radius:15px;
+	float: right;
+	padding: 0.5vw 2vw;
+	cursor: pointer;
+	background-color: #080;
+}
+
+div.start {
+	visibility: hidden;
+}
+
+div.ready div.start {
+	visibility: inherit;
+}
+
+div.start:hover {
+	background-color: #0c0;
+}
+
 div.time {
 	width: 15%;
 	padding:1vw;
 	box-sizing: border-box;
 	float: right;
 	text-align: right;
+}
+
+div.ready div.time {
+	width: 0;
+	padding:0;
+	overflow: hidden;
 }
 
 div.score, div.score-hilite {
@@ -55,7 +86,7 @@ body.light div.active {
 	border-color: #333;
 }
 
-body.light div.inactive {
+body.light div.inactive, div.ready {
 	color: #ccc;
 	border-color: #ccc;
 }
