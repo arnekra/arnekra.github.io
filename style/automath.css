@@ -1,20 +1,100 @@
 
+html {
+	width: 100%;
+	height: 100%;
+}
+
 body {
 	font-size: 5vw;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+}
+
+div {
+	cursor: default;
+}
+
+#application {
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+}
+div.task-container {
+	width: 100%;
+	height: 8vw;
 }
 
 div.answer-container {
 	width:100%;
+	height: 16vw;
 }
 
 div.score-board {
 	width:100%;
+	height: 8vw;
 }
 
 #task {
-	width: 100%;
+	width: 50%;
 	padding:1vw;
 	box-sizing: border-box;
+	float: left;
+}
+
+div.user-container {
+	width: 100%;
+	height: 10vw;
+}
+
+div.user-container > div, div.button {
+	width: 22%;
+	font-size: 3vw;
+	text-align: center;
+	margin:1%;
+	border-width: 2px;
+	border-style: solid;
+	border-radius: 10px;
+	float: left;
+	box-sizing: border-box;
+}
+
+div.button {
+	cursor: pointer;
+}
+
+body.light div.button {
+	background-color: #888;
+}
+
+body.light div.button:hover {
+	background-color: #444;
+	border-color: #000;
+	color: #000;
+}
+
+div.user-container > div:not(.selected) {
+	cursor: pointer;
+}
+
+body.light div.user-container > div.selected {
+	background-color: green;
+}
+
+body.light div.user-container > div:hover:not(.selected) {
+	background-color: #999;
+	border-color: #000;
+	color: #000;
+}
+
+div.score-table {
+	padding: 10px;
+}
+
+th {
+	text-align: left;
+	padding-right: 2vw;
 }
 
 div.answer-container > div {
@@ -27,23 +107,29 @@ div.answer-container > div {
 	border-radius:15px;
 	float: left;
 	box-sizing: border-box;
+}
+
+div.active div.answer-container > div {
 	cursor: pointer;
 }
 
-div.start {
+div.start, div.user {
 	text-align: center;
 	margin:1%;
 	font-size: 4vw;
 	border-width: 2px;
 	border-style: solid;
-	border-radius:15px;
+	border-radius: 15px;
 	float: right;
 	padding: 0.5vw 2vw;
+}
+
+div.ready div.start, div.ready div.user {
 	cursor: pointer;
-	background-color: #080;
 }
 
 div.start {
+	background-color: #080;
 	visibility: hidden;
 }
 
@@ -53,6 +139,27 @@ div.ready div.start {
 
 div.start:hover {
 	background-color: #0c0;
+}
+
+div.active div.user {
+	background-color: #400;
+	color: #888;
+	border-color: #888;
+}
+
+div.inactive div.user {
+	background-color: #400;
+	color: #888;
+	border-color: #888;
+}
+
+div.ready div.user {
+	background-color: #D00;
+	color: #000;
+}
+
+div.ready div.user:hover {
+	background-color: #F22;
 }
 
 div.time {
@@ -108,6 +215,64 @@ body.light div.answer-container > div.correct {
 body.light div.answer-container > div.success {
 	animation:blinkingSuccessLight 0.8s infinite;
 }
+
+#dialog-mask {
+	background-color: rgba(0, 0, 0, 0.8);
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+}
+
+.dialog-title {
+	font-size: 2.5vw;
+	height: 3vw;
+	width: 100%;
+	text-align: center;
+	border-radius: 9.5px;
+}
+
+body.light .dialog-title {
+	color: #111;
+	background-color: #888;
+}
+
+.dialog {
+	height: 100%;
+	width: 100%;
+	border-radius: 10px;
+	border-width: 2px;
+	border-style: solid;
+}
+
+body.light .dialog {
+	background-color: #ccc;
+	border-color: #fff;
+	color: #333;
+	font-size: 2vw;
+}
+
+
+#settings {
+	position: absolute;
+	left: 10%;
+	right: 10%;
+	top: 10%;
+	bottom: 10%;
+}
+
+.hidden {
+	visibility: hidden;
+	opacity: 0;
+	transition: opacity 0.2s linear, visibility 0.2s linear;
+}
+
+.visible {
+	visibility: inherit;
+	opacity: 1;
+	transition: opacity 0.3s linear;
+  }
 
 @keyframes blinkingSuccessLight{
 	0%{		background-color: green;	}
