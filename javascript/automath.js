@@ -23,29 +23,46 @@ function register() {
     }
     class ScoreInfo {
         constructor(userId) {
-            this.hiScore = 0;
             this.dayGames = 0;
             this.dayScore = 0;
+            this.dayRecord = 0;
             this.weekNo = 0;
             this.weekGames = 0;
             this.weekScore = 0;
+            this.weekRecord = 0;
+            this.totalGames = 0;
+            this.totalScore = 0;
+            this.totalRecord = 0;
             this.id = userId;
             this.dayNo = getDayNo();
             this.weekNo = getWeekNo(this.dayNo);
             const stored = localStorage.getItem('automath.scoreInfo.' + userId);
             const parsed = stored ? JSON.parse(stored) : undefined;
             if (parsed) {
-                if (typeof (parsed.hiScore) === 'number')
-                    this.hiScore = parsed.hiScore;
+                if (typeof (parsed.hiScore) === 'number') {
+                    this.totalRecord = parsed.hiScore;
+                }
+                else {
+                    if (typeof (parsed.totalGames) === 'number')
+                        this.totalGames = parsed.totalGames;
+                    if (typeof (parsed.totalScore) === 'number')
+                        this.totalScore = parsed.totalScore;
+                    if (typeof (parsed.totalRecord) === 'number')
+                        this.totalRecord = parsed.totalRecord;
+                }
                 if (typeof (parsed.dayNo) === 'number' && typeof (parsed.dayScore) === 'number'
                     && typeof (parsed.dayGames) === 'number' && parsed.dayNo === this.dayNo) {
                     this.dayScore = parsed.dayScore;
                     this.dayGames = parsed.dayGames;
+                    if (typeof (parsed.dayRecord) === 'number')
+                        this.dayRecord = parsed.dayRecord;
                 }
                 if (typeof (parsed.weekNo) === 'number' && typeof (parsed.weekScore) === 'number'
                     && typeof (parsed.weekGames) === 'number' && parsed.weekNo === this.weekNo) {
                     this.weekScore = parsed.weekScore;
                     this.weekGames = parsed.weekGames;
+                    if (typeof (parsed.weekRecord) === 'number')
+                        this.weekRecord = parsed.weekRecord;
                 }
             }
         }
@@ -55,12 +72,14 @@ function register() {
                 this.dayNo = dayNo;
                 this.dayGames = 0;
                 this.dayScore = 0;
+                this.dayRecord = 0;
             }
             const weekNo = getWeekNo(this.dayNo);
             if (weekNo != this.weekNo) {
                 this.weekNo = weekNo;
                 this.weekGames = 0;
                 this.weekScore = 0;
+                this.weekRecord = 0;
             }
         }
         save() {
@@ -75,11 +94,15 @@ function register() {
         currentScoreInfo = id !== 'anonym' ? new ScoreInfo(id) : undefined;
         const scoreTable = document.querySelector(".score-table");
         if (currentScoreInfo) {
-            document.getElementById('hiScore').innerText = currentScoreInfo.hiScore.toString();
             document.getElementById('dayGames').innerText = currentScoreInfo.dayGames.toString();
             document.getElementById('dayScore').innerText = currentScoreInfo.dayScore.toString();
+            document.getElementById('dayRecord').innerText = currentScoreInfo.dayRecord.toString();
             document.getElementById('weekGames').innerText = currentScoreInfo.weekGames.toString();
             document.getElementById('weekScore').innerText = currentScoreInfo.weekScore.toString();
+            document.getElementById('weekRecord').innerText = currentScoreInfo.weekRecord.toString();
+            document.getElementById('totalGames').innerText = currentScoreInfo.totalGames.toString();
+            document.getElementById('totalScore').innerText = currentScoreInfo.totalScore.toString();
+            document.getElementById('totalRecord').innerText = currentScoreInfo.totalRecord.toString();
             if (scoreTable)
                 scoreTable.removeAttribute('style');
         }
@@ -207,18 +230,30 @@ function register() {
                     let scoreDiv = document.getElementById("score");
                     scoreDiv.setAttribute("class", "score-hilite");
                     if (currentScoreInfo) {
-                        if (score > currentScoreInfo.hiScore) {
-                            currentScoreInfo.hiScore = score;
-                            document.getElementById('hiScore').innerText = score.toString();
-                        }
                         currentScoreInfo.dayGames += 1;
                         document.getElementById('dayGames').innerText = currentScoreInfo.dayGames.toString();
                         currentScoreInfo.dayScore += score;
                         document.getElementById('dayScore').innerText = currentScoreInfo.dayScore.toString();
+                        if (score > currentScoreInfo.dayRecord) {
+                            currentScoreInfo.dayRecord = score;
+                            document.getElementById('dayRecord').innerText = score.toString();
+                        }
                         currentScoreInfo.weekGames += 1;
                         document.getElementById('weekGames').innerText = currentScoreInfo.weekGames.toString();
                         currentScoreInfo.weekScore += score;
                         document.getElementById('weekScore').innerText = currentScoreInfo.weekScore.toString();
+                        if (score > currentScoreInfo.weekRecord) {
+                            currentScoreInfo.weekRecord = score;
+                            document.getElementById('weekRecord').innerText = score.toString();
+                        }
+                        currentScoreInfo.totalGames += 1;
+                        document.getElementById('totalGames').innerText = currentScoreInfo.totalGames.toString();
+                        currentScoreInfo.totalScore += score;
+                        document.getElementById('totalScore').innerText = currentScoreInfo.totalScore.toString();
+                        if (score > currentScoreInfo.totalRecord) {
+                            currentScoreInfo.totalRecord = score;
+                            document.getElementById('totalRecord').innerText = score.toString();
+                        }
                         currentScoreInfo.save();
                     }
                     setTimeout(function () {

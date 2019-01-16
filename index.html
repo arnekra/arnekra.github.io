@@ -3,7 +3,7 @@
 	<head>
 		<title>Plusstrening</title>
 		<meta name="apple-mobile-web-app-capable" content="yes">
-		<link rel="shortcut icon" type="image/png" href="/favicon.png"/>
+		<link rel="shortcut icon" type="image/png" href="./favicon.png"/>
 		<link rel="stylesheet" href="style/normalize.css">
 		<link rel="stylesheet" href="style/automath.css">
 		<script data-main="javascript/automath.js" src="./javascript/require.js"></script>
@@ -57,11 +57,10 @@
 					<div style="width:100%; height:6vw;"><div id="addUser" class="button">+</div></div>
 					<div class="score-table">
 						<table>
-							<tr><th>REKORD</th><td id="hiScore">0</td></tr>
-							<tr><th>SPILL I DAG</th><td id="dayGames">0</td></tr>
-							<tr><th>POENG I DAG</th><td id="dayScore">0</td></tr>
-							<tr><th>SPILL DENNE UKEN</th><td id="weekGames">0</td></tr>
-							<tr><th>POENG DENNE UKEN</th><td id="weekScore">0</td></tr>
+							<tr><th></th><th>SPILL</th><th>POENG</th><th>REKORD</th></tr>
+							<tr><th>I DAG</th><td id="dayGames">0</td><td id="dayScore">0</td><td id="dayRecord">0</td></tr>
+							<tr><th>DENNE UKEN</th><td id="weekGames">0</td><td id="weekScore">0</td><td id="weekRecord">0</td></tr>
+							<tr><th>TOTAL</th><td id="totalGames">0</td><td id="totalScore">0</td><td id="totalRecord">0</td></tr>
 						</table>
 					</div>
 				</div>

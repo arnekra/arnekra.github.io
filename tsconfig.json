@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"module": "amd",
+		"experimentalDecorators": true,
+		"sourceMap": true,
+		"target": "es6",
+		"strict":true,
+		"downlevelIteration": true,
+		"outFile": "javascript/automath.js",
+		"lib": ["dom", "es2015", "es5"],
+	 },
+	"include": [
+		"typescript/*"
+	]
+}
