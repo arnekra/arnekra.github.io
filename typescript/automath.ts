@@ -4,6 +4,7 @@ function register(): void {
 	const dialogMask = document.getElementById("dialog-mask") as HTMLElement;
 	const settingsDiv = document.getElementById("settings") as HTMLElement;
 	const outerUserButton = (document.getElementById("user") as HTMLElement);
+	let answerRowCount: number = 2;
 	let remainingTime = 0;
 	let score = 0;
 	let successCount = 0;
@@ -27,19 +28,103 @@ function register(): void {
 		return Math.floor((dayNo + 3) / 7);
 	}
 
-	class ScoreInfo {
-		id: string;
-		dayNo: number;
+	interface TaskInfo {
+		left: number;
+		right: number;
+		answer: number;
+		scoreValue: number;
+	}
+	function setupAddTask(rowCount: number): TaskInfo {
+		const comb = Math.floor(Math.random() * 100) + 10;
+		const a = Math.floor(comb / 10); // number between 1 and 10
+		const b = comb % 10; // number between 0 and 9
+		const swapped = Math.random() >= 0.5;
+		const left = swapped ? b : a;
+		const right = swapped ? a : b;
+		const answer = left + right;
+		return { left: left, right: right, answer: answer, scoreValue: answer };
+	}
+	function setupSubtractTask(rowCount: number): TaskInfo {
+		const addTask = setupAddTask(rowCount);
+		return { left: addTask.answer, right: addTask.right, answer: addTask.left, scoreValue: addTask.scoreValue };
+	}
+	function setupMultiplyTask(rowCount: number): TaskInfo {
+		const comb = Math.floor(Math.random() * 10 * rowCount);
+		const a = Math.floor(comb / 10) + 1; // number between 1 and rowCount
+		const b = 1 + (comb % 10); // number between 1 and 10
+		const swapped = Math.random() >= 0.5;
+		const left = swapped ? b : a;
+		const right = swapped ? a : b;
+		const answer = left * right;
+		return { left: left, right: right, answer: answer, scoreValue: a + b };
+	}
+	function setupDivideTask(rowCount: number): TaskInfo {
+		const comb = Math.floor(Math.random() * 100) + 10;
+		const a = Math.floor(comb / 10); // number between 1 and 10
+		const b = comb % 10; // number between 0 and 9
+		const left = a * b;
+		const right = a;
+		const answer = b;
+		return { left: left, right: right, answer: answer, scoreValue: a + b };
+	}
+	interface OperatorInfo {
+		readonly text: string;
+		setupTask(rowCount: number) : TaskInfo;
+	};
+	const operatorInfoTab = {
+		add: { text: " + ", setupTask: setupAddTask } as OperatorInfo,
+		subtract: { text: " - ", setupTask: setupSubtractTask } as OperatorInfo,
+		multiply: { text: " * ", setupTask: setupMultiplyTask } as OperatorInfo,
+		divide: { text: " / ", setupTask: setupDivideTask} as OperatorInfo,
+	}
+	var currentOpType = "add";
+
+	class ScoreItem {
 		dayGames: number = 0;
 		dayScore: number = 0;
 		dayRecord: number = 0;
-		weekNo: number = 0;
 		weekGames: number = 0;
 		weekScore: number = 0;
 		weekRecord: number = 0;
 		totalGames: number = 0;
 		totalScore: number = 0;
 		totalRecord: number = 0;
+
+		constructor(parsed?: any, dayNo?: Number, weekNo?: Number) {
+			if (!parsed)
+				return;
+			if (typeof(parsed.hiScore) === 'number') {
+				this.totalRecord = parsed.hiScore;
+			} else {
+				if (typeof(parsed.totalGames) === 'number')
+					this.totalGames = parsed.totalGames;
+				if (typeof(parsed.totalScore) === 'number')
+					this.totalScore = parsed.totalScore;
+				if (typeof(parsed.totalRecord) === 'number')
+					this.totalRecord = parsed.totalRecord;
+			}
+			if (typeof(parsed.dayNo) === 'number' && typeof(parsed.dayScore) === 'number'
+					&& typeof(parsed.dayGames) === 'number' && parsed.dayNo === dayNo) {
+				this.dayScore = parsed.dayScore;
+				this.dayGames = parsed.dayGames;
+				if (typeof(parsed.dayRecord) === 'number')
+					this.dayRecord = parsed.dayRecord;
+			}
+			if (typeof(parsed.weekNo) === 'number' && typeof(parsed.weekScore) === 'number'
+					&& typeof(parsed.weekGames) === 'number' && parsed.weekNo === weekNo) {
+				this.weekScore = parsed.weekScore;
+				this.weekGames = parsed.weekGames;
+				if (typeof(parsed.weekRecord) === 'number')
+					this.weekRecord = parsed.weekRecord;
+			}
+		}
+	}
+
+	class ScoreInfo {
+		id: string;
+		dayNo: number;
+		weekNo: number = 0;
+		items: { [key: string]: ScoreItem} = {};
 
 		constructor(userId: string) {
 			this.id = userId;
@@ -48,47 +133,42 @@ function register(): void {
 			const stored = localStorage.getItem('automath.scoreInfo.' + userId);
 			const parsed = stored ? JSON.parse(stored) : undefined;
 			if (parsed) {
-				if (typeof(parsed.hiScore) === 'number') {
-					this.totalRecord = parsed.hiScore;
-				} else {
-					if (typeof(parsed.totalGames) === 'number')
-						this.totalGames = parsed.totalGames;
-					if (typeof(parsed.totalScore) === 'number')
-						this.totalScore = parsed.totalScore;
-					if (typeof(parsed.totalRecord) === 'number')
-						this.totalRecord = parsed.totalRecord;
-				}
-				if (typeof(parsed.dayNo) === 'number' && typeof(parsed.dayScore) === 'number'
-						&& typeof(parsed.dayGames) === 'number' && parsed.dayNo === this.dayNo) {
-					this.dayScore = parsed.dayScore;
-					this.dayGames = parsed.dayGames;
-					if (typeof(parsed.dayRecord) === 'number')
-						this.dayRecord = parsed.dayRecord;
-				}
-				if (typeof(parsed.weekNo) === 'number' && typeof(parsed.weekScore) === 'number'
-						&& typeof(parsed.weekGames) === 'number' && parsed.weekNo === this.weekNo) {
-					this.weekScore = parsed.weekScore;
-					this.weekGames = parsed.weekGames;
-					if (typeof(parsed.weekRecord) === 'number')
-						this.weekRecord = parsed.weekRecord;
+				if (parsed.items && typeof(parsed.items) === "object") {
+					for (const opType in parsed.items) {
+						const parsedItem = parsed.items[opType];
+						this.items[opType] = new ScoreItem(parsedItem, this.dayNo, this.weekNo);
+					}
+				} else if (parsed.hiScore || parsed.totalRecord) {
+					this.items["add"] = new ScoreItem(parsed, this.dayNo, this.weekNo);
 				}
 			}
-		}
+			const types = ["add", "subtract", "multiply", "divide"];
+			for (const opType of types) {
+				if (!this.items[opType])
+					this.items[opType] = new ScoreItem();
+			}
+	}
 
 		prepareNewGame() {
 			const dayNo = getDayNo();
 			if (dayNo != this.dayNo) {
 				this.dayNo = dayNo;
-				this.dayGames = 0;
-				this.dayScore = 0;
-				this.dayRecord = 0;
+				for (const opType in this.items) {
+					const item = this.items[opType];
+					item.dayGames = 0;
+					item.dayScore = 0;
+					item.dayRecord = 0;
+				}
 			}
 			const weekNo = getWeekNo(this.dayNo);
 			if (weekNo != this.weekNo) {
 				this.weekNo = weekNo;
-				this.weekGames = 0;
-				this.weekScore = 0;
-				this.weekRecord = 0;
+				for (const opType in this.items) {
+					const item = this.items[opType];
+					item.weekGames = 0;
+					item.weekScore = 0;
+					item.weekRecord = 0;
+				}
 			}
 		}
 
@@ -101,20 +181,27 @@ function register(): void {
 
 	let currentScoreInfo: ScoreInfo | undefined = undefined;
 
+	function updateScoreTable() {
+		if (currentScoreInfo) {
+			const scoreItem = currentScoreInfo.items[currentOpType];
+			(document.getElementById('dayGames') as HTMLElement).innerText = scoreItem.dayGames.toString();
+			(document.getElementById('dayScore') as HTMLElement).innerText = scoreItem.dayScore.toString();
+			(document.getElementById('dayRecord') as HTMLElement).innerText = scoreItem.dayRecord.toString();
+			(document.getElementById('weekGames') as HTMLElement).innerText = scoreItem.weekGames.toString();
+			(document.getElementById('weekScore') as HTMLElement).innerText = scoreItem.weekScore.toString();
+			(document.getElementById('weekRecord') as HTMLElement).innerText = scoreItem.weekRecord.toString();
+			(document.getElementById('totalGames') as HTMLElement).innerText = scoreItem.totalGames.toString();
+			(document.getElementById('totalScore') as HTMLElement).innerText = scoreItem.totalScore.toString();
+			(document.getElementById('totalRecord') as HTMLElement).innerText = scoreItem.totalRecord.toString();
+		}
+	}
+
 	function setUser(id: string, name: string) {
 		outerUserButton.innerText = name;
 		currentScoreInfo = id !== 'anonym' ? new ScoreInfo(id) : undefined;
 		const scoreTable = document.querySelector(".score-table");
 		if (currentScoreInfo) {
-			(document.getElementById('dayGames') as HTMLElement).innerText = currentScoreInfo.dayGames.toString();
-			(document.getElementById('dayScore') as HTMLElement).innerText = currentScoreInfo.dayScore.toString();
-			(document.getElementById('dayRecord') as HTMLElement).innerText = currentScoreInfo.dayRecord.toString();
-			(document.getElementById('weekGames') as HTMLElement).innerText = currentScoreInfo.weekGames.toString();
-			(document.getElementById('weekScore') as HTMLElement).innerText = currentScoreInfo.weekScore.toString();
-			(document.getElementById('weekRecord') as HTMLElement).innerText = currentScoreInfo.weekRecord.toString();
-			(document.getElementById('totalGames') as HTMLElement).innerText = currentScoreInfo.totalGames.toString();
-			(document.getElementById('totalScore') as HTMLElement).innerText = currentScoreInfo.totalScore.toString();
-			(document.getElementById('totalRecord') as HTMLElement).innerText = currentScoreInfo.totalRecord.toString();
+			updateScoreTable();
 			if (scoreTable)
 				scoreTable.removeAttribute('style');
 		} else if (scoreTable) {
@@ -217,16 +304,12 @@ function register(): void {
 	}
 
 	function setupTask(): void {
-		let comb = Math.floor(Math.random() * 100) + 10;
-		let a = Math.floor(comb / 10);
-		let b = comb % 10;
-		let swapped = Math.random() >= 0.5;
-		let left = swapped ? b : a;
-		let right = swapped ? a : b;
-		let answer = left + right;
-		taskDiv.setAttribute("answer", answer.toString());
+		const operatorInfo = (operatorInfoTab as any)[currentOpType] as OperatorInfo;
+		const task = operatorInfo.setupTask(answerRowCount);
+		taskDiv.setAttribute("answer", task.answer.toString());
+		taskDiv.setAttribute("score-value", task.scoreValue.toString())
 		appDiv.setAttribute("class", "active");
-		taskDiv.innerText = left.toString() + " + " + right.toString() + " ="
+		taskDiv.innerText = task.left.toString() + operatorInfo.text + task.right.toString() + " ="
 	}
 
 	function updateScore() {
@@ -253,30 +336,31 @@ function register(): void {
 					let scoreDiv = document.getElementById("score") as HTMLElement;
 					scoreDiv.setAttribute("class", "score-hilite");
 					if (currentScoreInfo) {
-						currentScoreInfo.dayGames += 1;
-						(document.getElementById('dayGames') as HTMLElement).innerText = currentScoreInfo.dayGames.toString();
-						currentScoreInfo.dayScore += score;
-						(document.getElementById('dayScore') as HTMLElement).innerText = currentScoreInfo.dayScore.toString();
-						if (score > currentScoreInfo.dayRecord) {
-							currentScoreInfo.dayRecord = score;
+						const currentScoreItem = currentScoreInfo.items[currentOpType];
+						currentScoreItem.dayGames += 1;
+						(document.getElementById('dayGames') as HTMLElement).innerText = currentScoreItem.dayGames.toString();
+						currentScoreItem.dayScore += score;
+						(document.getElementById('dayScore') as HTMLElement).innerText = currentScoreItem.dayScore.toString();
+						if (score > currentScoreItem.dayRecord) {
+							currentScoreItem.dayRecord = score;
 							(document.getElementById('dayRecord') as HTMLElement).innerText = score.toString();
 						}
 
-						currentScoreInfo.weekGames += 1;
-						(document.getElementById('weekGames') as HTMLElement).innerText = currentScoreInfo.weekGames.toString();
-						currentScoreInfo.weekScore += score;
-						(document.getElementById('weekScore') as HTMLElement).innerText = currentScoreInfo.weekScore.toString();
-						if (score > currentScoreInfo.weekRecord) {
-							currentScoreInfo.weekRecord = score;
+						currentScoreItem.weekGames += 1;
+						(document.getElementById('weekGames') as HTMLElement).innerText = currentScoreItem.weekGames.toString();
+						currentScoreItem.weekScore += score;
+						(document.getElementById('weekScore') as HTMLElement).innerText = currentScoreItem.weekScore.toString();
+						if (score > currentScoreItem.weekRecord) {
+							currentScoreItem.weekRecord = score;
 							(document.getElementById('weekRecord') as HTMLElement).innerText = score.toString();
 						}
 
-						currentScoreInfo.totalGames += 1;
-						(document.getElementById('totalGames') as HTMLElement).innerText = currentScoreInfo.totalGames.toString();
-						currentScoreInfo.totalScore += score;
-						(document.getElementById('totalScore') as HTMLElement).innerText = currentScoreInfo.totalScore.toString();
-						if (score > currentScoreInfo.totalRecord) {
-							currentScoreInfo.totalRecord = score;
+						currentScoreItem.totalGames += 1;
+						(document.getElementById('totalGames') as HTMLElement).innerText = currentScoreItem.totalGames.toString();
+						currentScoreItem.totalScore += score;
+						(document.getElementById('totalScore') as HTMLElement).innerText = currentScoreItem.totalScore.toString();
+						if (score > currentScoreItem.totalRecord) {
+							currentScoreItem.totalRecord = score;
 							(document.getElementById('totalRecord') as HTMLElement).innerText = score.toString();
 						}
 						currentScoreInfo.save();
@@ -291,7 +375,42 @@ function register(): void {
 		}, 100);
 	}
 
-	for (let i = 1; i <= 20; ++i) {
+	function updateDynamicRowCount() {
+		const dx = document.body.offsetWidth;
+		const dy = document.body.offsetHeight;
+		const available = dy - 0.16 * dx;
+		const rowCount = Math.max(Math.min(Math.floor(available / (0.0785 * dx)), 9), 2);
+		answerRowCount = rowCount;
+		const className = "rows-" + rowCount;
+		const multiplyButton = document.getElementById("multiply") as HTMLDivElement;
+		multiplyButton.setAttribute("data-rows", className);
+		if (multiplyButton.getAttribute("class") == "selected") {
+			const clipperDiv = document.getElementById("clipper") as HTMLDivElement;
+			clipperDiv.setAttribute("class", className);
+		}
+	}
+
+	updateDynamicRowCount();
+	window.addEventListener("resize", updateDynamicRowCount);
+
+	// activate the operator selector buttons
+	let opButtons = document.querySelectorAll("div.op-select > div") as NodeListOf<HTMLDivElement>;
+	const clipperDiv = document.getElementById("clipper") as HTMLDivElement;
+	opButtons.forEach((opButton: HTMLDivElement, key: number, parent: NodeListOf<HTMLDivElement>) => {
+		opButton.addEventListener("click", (ev: MouseEvent): any => {
+			if (opButton.getAttribute("class") == "selected")
+				return;
+			const oldOpBtn = document.querySelector("div.op-select > div.selected") as HTMLDivElement;
+			oldOpBtn.removeAttribute("class");
+			opButton.setAttribute("class", "selected");
+			clipperDiv.setAttribute("class", opButton.getAttribute("data-rows") || "");
+			currentOpType = opButton.id;
+			const opInfo = (operatorInfoTab as any)[currentOpType] as OperatorInfo;
+			taskDiv.innerText = "?" + opInfo.text + "? =";
+			updateScoreTable();
+		});
+	});
+	for (let i = 0; i <= 90; ++i) {
 		let btn = document.getElementById("a" + i) as HTMLElement;
 		btn.addEventListener("click", function(this: HTMLElement, ev: MouseEvent): any {
 			if (appDiv.getAttribute("class") == "inactive")
@@ -301,8 +420,9 @@ function register(): void {
 			let ok = i.toString() == answer;
 			let successButton = ok ? btn : document.getElementById("a" + answer) as HTMLElement;
 			if (ok) {
+				const scoreValue = parseInt(taskDiv.getAttribute("score-value") || "0");
 				btn.setAttribute("class", "success");
-				score += i;
+				score += scoreValue;
 				successCount += 1;
 			} else {
 				btn.setAttribute("class", "error");

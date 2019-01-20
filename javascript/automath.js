@@ -5,6 +5,7 @@ function register() {
     const dialogMask = document.getElementById("dialog-mask");
     const settingsDiv = document.getElementById("settings");
     const outerUserButton = document.getElementById("user");
+    let answerRowCount = 2;
     let remainingTime = 0;
     let score = 0;
     let successCount = 0;
@@ -21,65 +22,133 @@ function register() {
     function getWeekNo(dayNo) {
         return Math.floor((dayNo + 3) / 7);
     }
-    class ScoreInfo {
-        constructor(userId) {
+    function setupAddTask(rowCount) {
+        const comb = Math.floor(Math.random() * 100) + 10;
+        const a = Math.floor(comb / 10); // number between 1 and 10
+        const b = comb % 10; // number between 0 and 9
+        const swapped = Math.random() >= 0.5;
+        const left = swapped ? b : a;
+        const right = swapped ? a : b;
+        const answer = left + right;
+        return { left: left, right: right, answer: answer, scoreValue: answer };
+    }
+    function setupSubtractTask(rowCount) {
+        const addTask = setupAddTask(rowCount);
+        return { left: addTask.answer, right: addTask.right, answer: addTask.left, scoreValue: addTask.scoreValue };
+    }
+    function setupMultiplyTask(rowCount) {
+        const comb = Math.floor(Math.random() * 10 * rowCount);
+        const a = Math.floor(comb / 10) + 1; // number between 1 and rowCount
+        const b = 1 + (comb % 10); // number between 1 and 10
+        const swapped = Math.random() >= 0.5;
+        const left = swapped ? b : a;
+        const right = swapped ? a : b;
+        const answer = left * right;
+        return { left: left, right: right, answer: answer, scoreValue: a + b };
+    }
+    function setupDivideTask(rowCount) {
+        const comb = Math.floor(Math.random() * 100) + 10;
+        const a = Math.floor(comb / 10); // number between 1 and 10
+        const b = comb % 10; // number between 0 and 9
+        const left = a * b;
+        const right = a;
+        const answer = b;
+        return { left: left, right: right, answer: answer, scoreValue: a + b };
+    }
+    ;
+    const operatorInfoTab = {
+        add: { text: " + ", setupTask: setupAddTask },
+        subtract: { text: " - ", setupTask: setupSubtractTask },
+        multiply: { text: " * ", setupTask: setupMultiplyTask },
+        divide: { text: " / ", setupTask: setupDivideTask },
+    };
+    var currentOpType = "add";
+    class ScoreItem {
+        constructor(parsed, dayNo, weekNo) {
             this.dayGames = 0;
             this.dayScore = 0;
             this.dayRecord = 0;
-            this.weekNo = 0;
             this.weekGames = 0;
             this.weekScore = 0;
             this.weekRecord = 0;
             this.totalGames = 0;
             this.totalScore = 0;
             this.totalRecord = 0;
+            if (!parsed)
+                return;
+            if (typeof (parsed.hiScore) === 'number') {
+                this.totalRecord = parsed.hiScore;
+            }
+            else {
+                if (typeof (parsed.totalGames) === 'number')
+                    this.totalGames = parsed.totalGames;
+                if (typeof (parsed.totalScore) === 'number')
+                    this.totalScore = parsed.totalScore;
+                if (typeof (parsed.totalRecord) === 'number')
+                    this.totalRecord = parsed.totalRecord;
+            }
+            if (typeof (parsed.dayNo) === 'number' && typeof (parsed.dayScore) === 'number'
+                && typeof (parsed.dayGames) === 'number' && parsed.dayNo === dayNo) {
+                this.dayScore = parsed.dayScore;
+                this.dayGames = parsed.dayGames;
+                if (typeof (parsed.dayRecord) === 'number')
+                    this.dayRecord = parsed.dayRecord;
+            }
+            if (typeof (parsed.weekNo) === 'number' && typeof (parsed.weekScore) === 'number'
+                && typeof (parsed.weekGames) === 'number' && parsed.weekNo === weekNo) {
+                this.weekScore = parsed.weekScore;
+                this.weekGames = parsed.weekGames;
+                if (typeof (parsed.weekRecord) === 'number')
+                    this.weekRecord = parsed.weekRecord;
+            }
+        }
+    }
+    class ScoreInfo {
+        constructor(userId) {
+            this.weekNo = 0;
+            this.items = {};
             this.id = userId;
             this.dayNo = getDayNo();
             this.weekNo = getWeekNo(this.dayNo);
             const stored = localStorage.getItem('automath.scoreInfo.' + userId);
             const parsed = stored ? JSON.parse(stored) : undefined;
             if (parsed) {
-                if (typeof (parsed.hiScore) === 'number') {
-                    this.totalRecord = parsed.hiScore;
+                if (parsed.items && typeof (parsed.items) === "object") {
+                    for (const opType in parsed.items) {
+                        const parsedItem = parsed.items[opType];
+                        this.items[opType] = new ScoreItem(parsedItem, this.dayNo, this.weekNo);
+                    }
                 }
-                else {
-                    if (typeof (parsed.totalGames) === 'number')
-                        this.totalGames = parsed.totalGames;
-                    if (typeof (parsed.totalScore) === 'number')
-                        this.totalScore = parsed.totalScore;
-                    if (typeof (parsed.totalRecord) === 'number')
-                        this.totalRecord = parsed.totalRecord;
+                else if (parsed.hiScore || parsed.totalRecord) {
+                    this.items["add"] = new ScoreItem(parsed, this.dayNo, this.weekNo);
                 }
-                if (typeof (parsed.dayNo) === 'number' && typeof (parsed.dayScore) === 'number'
-                    && typeof (parsed.dayGames) === 'number' && parsed.dayNo === this.dayNo) {
-                    this.dayScore = parsed.dayScore;
-                    this.dayGames = parsed.dayGames;
-                    if (typeof (parsed.dayRecord) === 'number')
-                        this.dayRecord = parsed.dayRecord;
-                }
-                if (typeof (parsed.weekNo) === 'number' && typeof (parsed.weekScore) === 'number'
-                    && typeof (parsed.weekGames) === 'number' && parsed.weekNo === this.weekNo) {
-                    this.weekScore = parsed.weekScore;
-                    this.weekGames = parsed.weekGames;
-                    if (typeof (parsed.weekRecord) === 'number')
-                        this.weekRecord = parsed.weekRecord;
-                }
+            }
+            const types = ["add", "subtract", "multiply", "divide"];
+            for (const opType of types) {
+                if (!this.items[opType])
+                    this.items[opType] = new ScoreItem();
             }
         }
         prepareNewGame() {
             const dayNo = getDayNo();
             if (dayNo != this.dayNo) {
                 this.dayNo = dayNo;
-                this.dayGames = 0;
-                this.dayScore = 0;
-                this.dayRecord = 0;
+                for (const opType in this.items) {
+                    const item = this.items[opType];
+                    item.dayGames = 0;
+                    item.dayScore = 0;
+                    item.dayRecord = 0;
+                }
             }
             const weekNo = getWeekNo(this.dayNo);
             if (weekNo != this.weekNo) {
                 this.weekNo = weekNo;
-                this.weekGames = 0;
-                this.weekScore = 0;
-                this.weekRecord = 0;
+                for (const opType in this.items) {
+                    const item = this.items[opType];
+                    item.weekGames = 0;
+                    item.weekScore = 0;
+                    item.weekRecord = 0;
+                }
             }
         }
         save() {
@@ -89,20 +158,26 @@ function register() {
         }
     }
     let currentScoreInfo = undefined;
+    function updateScoreTable() {
+        if (currentScoreInfo) {
+            const scoreItem = currentScoreInfo.items[currentOpType];
+            document.getElementById('dayGames').innerText = scoreItem.dayGames.toString();
+            document.getElementById('dayScore').innerText = scoreItem.dayScore.toString();
+            document.getElementById('dayRecord').innerText = scoreItem.dayRecord.toString();
+            document.getElementById('weekGames').innerText = scoreItem.weekGames.toString();
+            document.getElementById('weekScore').innerText = scoreItem.weekScore.toString();
+            document.getElementById('weekRecord').innerText = scoreItem.weekRecord.toString();
+            document.getElementById('totalGames').innerText = scoreItem.totalGames.toString();
+            document.getElementById('totalScore').innerText = scoreItem.totalScore.toString();
+            document.getElementById('totalRecord').innerText = scoreItem.totalRecord.toString();
+        }
+    }
     function setUser(id, name) {
         outerUserButton.innerText = name;
         currentScoreInfo = id !== 'anonym' ? new ScoreInfo(id) : undefined;
         const scoreTable = document.querySelector(".score-table");
         if (currentScoreInfo) {
-            document.getElementById('dayGames').innerText = currentScoreInfo.dayGames.toString();
-            document.getElementById('dayScore').innerText = currentScoreInfo.dayScore.toString();
-            document.getElementById('dayRecord').innerText = currentScoreInfo.dayRecord.toString();
-            document.getElementById('weekGames').innerText = currentScoreInfo.weekGames.toString();
-            document.getElementById('weekScore').innerText = currentScoreInfo.weekScore.toString();
-            document.getElementById('weekRecord').innerText = currentScoreInfo.weekRecord.toString();
-            document.getElementById('totalGames').innerText = currentScoreInfo.totalGames.toString();
-            document.getElementById('totalScore').innerText = currentScoreInfo.totalScore.toString();
-            document.getElementById('totalRecord').innerText = currentScoreInfo.totalRecord.toString();
+            updateScoreTable();
             if (scoreTable)
                 scoreTable.removeAttribute('style');
         }
@@ -197,16 +272,12 @@ function register() {
         }
     }
     function setupTask() {
-        let comb = Math.floor(Math.random() * 100) + 10;
-        let a = Math.floor(comb / 10);
-        let b = comb % 10;
-        let swapped = Math.random() >= 0.5;
-        let left = swapped ? b : a;
-        let right = swapped ? a : b;
-        let answer = left + right;
-        taskDiv.setAttribute("answer", answer.toString());
+        const operatorInfo = operatorInfoTab[currentOpType];
+        const task = operatorInfo.setupTask(answerRowCount);
+        taskDiv.setAttribute("answer", task.answer.toString());
+        taskDiv.setAttribute("score-value", task.scoreValue.toString());
         appDiv.setAttribute("class", "active");
-        taskDiv.innerText = left.toString() + " + " + right.toString() + " =";
+        taskDiv.innerText = task.left.toString() + operatorInfo.text + task.right.toString() + " =";
     }
     function updateScore() {
         let scoreDiv = document.getElementById("score");
@@ -230,28 +301,29 @@ function register() {
                     let scoreDiv = document.getElementById("score");
                     scoreDiv.setAttribute("class", "score-hilite");
                     if (currentScoreInfo) {
-                        currentScoreInfo.dayGames += 1;
-                        document.getElementById('dayGames').innerText = currentScoreInfo.dayGames.toString();
-                        currentScoreInfo.dayScore += score;
-                        document.getElementById('dayScore').innerText = currentScoreInfo.dayScore.toString();
-                        if (score > currentScoreInfo.dayRecord) {
-                            currentScoreInfo.dayRecord = score;
+                        const currentScoreItem = currentScoreInfo.items[currentOpType];
+                        currentScoreItem.dayGames += 1;
+                        document.getElementById('dayGames').innerText = currentScoreItem.dayGames.toString();
+                        currentScoreItem.dayScore += score;
+                        document.getElementById('dayScore').innerText = currentScoreItem.dayScore.toString();
+                        if (score > currentScoreItem.dayRecord) {
+                            currentScoreItem.dayRecord = score;
                             document.getElementById('dayRecord').innerText = score.toString();
                         }
-                        currentScoreInfo.weekGames += 1;
-                        document.getElementById('weekGames').innerText = currentScoreInfo.weekGames.toString();
-                        currentScoreInfo.weekScore += score;
-                        document.getElementById('weekScore').innerText = currentScoreInfo.weekScore.toString();
-                        if (score > currentScoreInfo.weekRecord) {
-                            currentScoreInfo.weekRecord = score;
+                        currentScoreItem.weekGames += 1;
+                        document.getElementById('weekGames').innerText = currentScoreItem.weekGames.toString();
+                        currentScoreItem.weekScore += score;
+                        document.getElementById('weekScore').innerText = currentScoreItem.weekScore.toString();
+                        if (score > currentScoreItem.weekRecord) {
+                            currentScoreItem.weekRecord = score;
                             document.getElementById('weekRecord').innerText = score.toString();
                         }
-                        currentScoreInfo.totalGames += 1;
-                        document.getElementById('totalGames').innerText = currentScoreInfo.totalGames.toString();
-                        currentScoreInfo.totalScore += score;
-                        document.getElementById('totalScore').innerText = currentScoreInfo.totalScore.toString();
-                        if (score > currentScoreInfo.totalRecord) {
-                            currentScoreInfo.totalRecord = score;
+                        currentScoreItem.totalGames += 1;
+                        document.getElementById('totalGames').innerText = currentScoreItem.totalGames.toString();
+                        currentScoreItem.totalScore += score;
+                        document.getElementById('totalScore').innerText = currentScoreItem.totalScore.toString();
+                        if (score > currentScoreItem.totalRecord) {
+                            currentScoreItem.totalRecord = score;
                             document.getElementById('totalRecord').innerText = score.toString();
                         }
                         currentScoreInfo.save();
@@ -265,7 +337,40 @@ function register() {
             }
         }, 100);
     }
-    for (let i = 1; i <= 20; ++i) {
+    function updateDynamicRowCount() {
+        const dx = document.body.offsetWidth;
+        const dy = document.body.offsetHeight;
+        const available = dy - 0.16 * dx;
+        const rowCount = Math.max(Math.min(Math.floor(available / (0.0785 * dx)), 9), 2);
+        answerRowCount = rowCount;
+        const className = "rows-" + rowCount;
+        const multiplyButton = document.getElementById("multiply");
+        multiplyButton.setAttribute("data-rows", className);
+        if (multiplyButton.getAttribute("class") == "selected") {
+            const clipperDiv = document.getElementById("clipper");
+            clipperDiv.setAttribute("class", className);
+        }
+    }
+    updateDynamicRowCount();
+    window.addEventListener("resize", updateDynamicRowCount);
+    // activate the operator selector buttons
+    let opButtons = document.querySelectorAll("div.op-select > div");
+    const clipperDiv = document.getElementById("clipper");
+    opButtons.forEach((opButton, key, parent) => {
+        opButton.addEventListener("click", (ev) => {
+            if (opButton.getAttribute("class") == "selected")
+                return;
+            const oldOpBtn = document.querySelector("div.op-select > div.selected");
+            oldOpBtn.removeAttribute("class");
+            opButton.setAttribute("class", "selected");
+            clipperDiv.setAttribute("class", opButton.getAttribute("data-rows") || "");
+            currentOpType = opButton.id;
+            const opInfo = operatorInfoTab[currentOpType];
+            taskDiv.innerText = "?" + opInfo.text + "? =";
+            updateScoreTable();
+        });
+    });
+    for (let i = 0; i <= 90; ++i) {
         let btn = document.getElementById("a" + i);
         btn.addEventListener("click", function (ev) {
             if (appDiv.getAttribute("class") == "inactive")
@@ -275,8 +380,9 @@ function register() {
             let ok = i.toString() == answer;
             let successButton = ok ? btn : document.getElementById("a" + answer);
             if (ok) {
+                const scoreValue = parseInt(taskDiv.getAttribute("score-value") || "0");
                 btn.setAttribute("class", "success");
-                score += i;
+                score += scoreValue;
                 successCount += 1;
             }
             else {

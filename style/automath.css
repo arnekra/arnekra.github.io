@@ -16,19 +16,82 @@ div {
 }
 
 #application {
+	position: absolute;
 	width: 100%;
 	height: 100%;
 	left: 0;
 	top: 0;
 }
+
 div.task-container {
 	width: 100%;
 	height: 8vw;
 }
 
-div.answer-container {
+#clipper {
+	position: relative;
 	width:100%;
-	height: 16vw;
+	overflow: hidden;
+}
+
+#clipper.two-rows, #clipper.rows-2, #clipper.row-0-and-1 {
+	height: 15.7vw;
+	transition: height 0.5s ease-in-out;
+}
+
+#clipper.rows-2 {
+	height: 15.7vw;
+	transition: height 0.5s ease-in-out;
+}
+
+#clipper.rows-3 {
+	height: 23.55vw;
+	transition: height 0.5s ease-in-out;
+}
+
+#clipper.rows-4 {
+	height: 31.4vw;
+	transition: height 0.5s ease-in-out;
+}
+
+#clipper.rows-5 {
+	height: 39.25vw;
+	transition: height 0.5s ease-in-out;
+}
+
+#clipper.rows-6 {
+	height: 47.1vw;
+	transition: height 0.5s ease-in-out;
+}
+
+#clipper.rows-7 {
+	height: 54.95vw;
+	transition: height 0.5s ease-in-out;
+}
+
+#clipper.rows-8 {
+	height: 62.8vw;
+	transition: height 0.5s ease-in-out;
+}
+
+#clipper.rows-9 {
+	height: 70.65vw;
+	transition: height 0.5s ease-in-out;
+}
+
+#clipper > .answer-container {
+	top: -8vw;
+	transition: top 0.5s ease-in-out;
+}
+
+#clipper.row-0-and-1 > .answer-container {
+	top: 0vw;
+	transition: top 0.5s ease-in-out;
+}
+
+div.answer-container {
+	position: absolute;
+	width:100%;
 }
 
 div.score-board {
@@ -109,6 +172,11 @@ div.answer-container > div {
 	box-sizing: border-box;
 }
 
+div.negative {
+	opacity: 0;
+	pointer-events: none;
+}
+
 div.active div.answer-container > div {
 	cursor: pointer;
 }
@@ -139,6 +207,57 @@ div.ready div.start {
 
 div.start:hover {
 	background-color: #0c0;
+}
+
+div.op-select {
+	position: absolute;
+	top: 0px;
+	left: 42.35vw;
+	width: 15.3vw;
+	height: 5vw;
+}
+
+div.op-select > div {
+	width:3vw;
+	height:3vw;
+	padding-top: 0.2vw;
+	font-size: 2vw;
+	text-align: center;
+	margin:0.4vw;
+	border-width: 2px;
+	border-style: solid;
+	border-radius:1.5vw;
+	float: left;
+	box-sizing: border-box;
+}
+
+div.op-select > div:not(.selected) {
+	cursor: pointer;
+}
+
+body.light div.op-select div:not(.selected) {
+	color: #222;
+	border-color: #222;
+	background-color: #ccc;
+}
+
+body.light div.op-select > div.selected {
+	background-color: green;
+	color: white;
+	border-color: white;
+}
+
+body.light div.op-select > div:hover:not(.selected) {
+	background-color: #999;
+	border-color: #000;
+	color: #000;
+}
+
+body.light div.active div.op-select > div:not(.selected), body.light div.inactive div.op-select > div:not(.selected) {
+	color: #aaa;
+	background-color: #eee;
+	border-color: #aaa;
+	pointer-events: none;
 }
 
 div.active div.user {
