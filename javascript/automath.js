@@ -341,7 +341,7 @@ function register() {
         const dx = document.body.offsetWidth;
         const dy = document.body.offsetHeight;
         const available = dy - 0.16 * dx;
-        const rowCount = Math.max(Math.min(Math.floor(available / (0.0785 * dx)), 9), 2);
+        const rowCount = Math.max(Math.min(Math.floor(available / (0.075 * dx)), 9), 2);
         answerRowCount = rowCount;
         const className = "rows-" + rowCount;
         const multiplyButton = document.getElementById("multiply");

@@ -35,52 +35,47 @@ div.task-container {
 }
 
 #clipper.two-rows, #clipper.rows-2, #clipper.row-0-and-1 {
-	height: 15.7vw;
-	transition: height 0.5s ease-in-out;
-}
-
-#clipper.rows-2 {
-	height: 15.7vw;
+	height: 15vw;
 	transition: height 0.5s ease-in-out;
 }
 
 #clipper.rows-3 {
-	height: 23.55vw;
+	height: 22.5vw;
 	transition: height 0.5s ease-in-out;
 }
 
 #clipper.rows-4 {
-	height: 31.4vw;
+	height: 30vw;
 	transition: height 0.5s ease-in-out;
 }
 
 #clipper.rows-5 {
-	height: 39.25vw;
+	height: 37.5vw;
 	transition: height 0.5s ease-in-out;
 }
 
 #clipper.rows-6 {
-	height: 47.1vw;
+	height: 45vw;
 	transition: height 0.5s ease-in-out;
 }
 
 #clipper.rows-7 {
-	height: 54.95vw;
+	height: 52.5vw;
 	transition: height 0.5s ease-in-out;
 }
 
 #clipper.rows-8 {
-	height: 62.8vw;
+	height: 60vw;
 	transition: height 0.5s ease-in-out;
 }
 
 #clipper.rows-9 {
-	height: 70.65vw;
+	height: 67.5vw;
 	transition: height 0.5s ease-in-out;
 }
 
 #clipper > .answer-container {
-	top: -8vw;
+	top: -7.5vw;
 	transition: top 0.5s ease-in-out;
 }
 
@@ -161,13 +156,14 @@ th {
 }
 
 div.answer-container > div {
-	width:8%;
+	width:8vw;
+	height: 5.5vw;
 	font-size: 5vw;
 	text-align: center;
-	margin:1%;
+	margin:1vw;
 	border-width: 2px;
 	border-style: solid;
-	border-radius:15px;
+	border-radius:1.2vw;
 	float: left;
 	box-sizing: border-box;
 }
