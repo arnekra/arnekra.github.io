@@ -231,15 +231,55 @@ function register() {
         container.appendChild(userButton);
         return userButton;
     }
-    function setupUserButtons(userInfo) {
-        const container = document.querySelector("div.user-container");
-        if (!container)
-            return;
+    /**
+     * Adds all the user buttons in the container at the top of the user dialog
+     * @param container the container for the user buttons
+     * @param userInfo The user info to connect to the container
+     */
+    function setupUserButtons(container, userInfo) {
         container.innerHTML = '';
         for (const id in userInfo.nameMap) {
             if (userInfo.nameMap.hasOwnProperty(id)) {
                 appendUserButton(userInfo, container, id);
             }
+        }
+    }
+    /**
+     * Executes a command provided its command string
+     * @param container the DIV element containing the user buttons
+     * @param userInfo information about the users in the system and who is the current user
+     * @param command the command string of the command to be handled
+     */
+    function handleCommand(container, userInfo, command) {
+        switch (command) {
+            case "!delete:record":
+                if (currentScoreInfo && currentScoreInfo.items[currentOpType]) {
+                    currentScoreInfo.items[currentOpType].totalRecord = 0;
+                    document.getElementById('totalRecord').innerText = "0";
+                    currentScoreInfo.save();
+                }
+                else {
+                    alert("Kan ikke slette rekorden til anonym bruker.");
+                }
+                break;
+            case "!delete:user":
+                if (currentScoreInfo) {
+                    const userId = currentScoreInfo.id;
+                    delete userInfo.nameMap[userId];
+                    selectUserButton(userInfo, "anonym", userButtonClickHandlers["anonym"].button);
+                    const buttonInfo = userButtonClickHandlers[userId];
+                    delete userButtonClickHandlers[userId];
+                    buttonInfo.button.removeEventListener("click", buttonInfo.handler);
+                    container.removeChild(buttonInfo.button);
+                    localStorage.removeItem('automath.scoreInfo.' + userId);
+                }
+                else {
+                    alert("Kan ikke slette anonym bruker.");
+                }
+                break;
+            default:
+                alert("'" + command + "' er ikke en gjenkjent kommando.");
+                break;
         }
     }
     function setupUserSupport() {
@@ -249,23 +289,28 @@ function register() {
                 settingsDiv.setAttribute("class", "visible");
             });
             const userInfo = new UserInfo();
-            setupUserButtons(userInfo);
             const addUserButton = document.getElementById('addUser');
             const container = document.querySelector("div.user-container");
             if (addUserButton && container) {
+                setupUserButtons(container, userInfo);
                 addUserButton.addEventListener('click', function () {
                     const name = prompt(texts.enterNamePrompt);
                     if (!name)
                         return;
-                    let idBase = name.toLocaleLowerCase();
-                    let newId = idBase;
-                    let index = 0;
-                    while (userInfo.nameMap[newId]) {
-                        newId = idBase + (++index);
+                    if (name.substr(0, 1) === "!") {
+                        handleCommand(container, userInfo, name);
                     }
-                    userInfo.nameMap[newId] = name.toLocaleUpperCase();
-                    const newButton = appendUserButton(userInfo, container, newId);
-                    selectUserButton(userInfo, newId, newButton);
+                    else {
+                        const idBase = name.toLocaleLowerCase();
+                        let newId = idBase;
+                        let index = 0;
+                        while (userInfo.nameMap[newId]) {
+                            newId = idBase + (++index);
+                        }
+                        userInfo.nameMap[newId] = name.toLocaleUpperCase();
+                        const newButton = appendUserButton(userInfo, container, newId);
+                        selectUserButton(userInfo, newId, newButton);
+                    }
                 });
             }
             setUser(userInfo.currentId, userInfo.nameMap[userInfo.currentId]);

@@ -106,7 +106,7 @@ div.score-board {
 
 div.user-container {
 	width: 100%;
-	height: 10vw;
+	height: 16vw;
 }
 
 div.user-container > div, div.button {
@@ -149,6 +149,7 @@ div.answer-container > div {
 	border-radius:1.2vw;
 	float: left;
 	box-sizing: border-box;
+	pointer-events: none;
 }
 
 div.negative {
@@ -158,6 +159,7 @@ div.negative {
 
 div.active div.answer-container > div {
 	cursor: pointer;
+	pointer-events: all;
 }
 
 div.start, div.user {
@@ -499,8 +501,8 @@ body.dark div.active {
 }
 
 body.dark div.inactive, body.dark div.ready {
-	color: #666;
-	border-color: #666;
+	color: #555;
+	border-color: #555;
 }
 
 body.dark div.answer-container > div.error {
@@ -540,7 +542,6 @@ body.dark div.active div.op-select > div:not(.selected), body.dark div.inactive 
 	color: #666;
 	background-color: #333;
 	border-color: #666;
-	pointer-events: none;
 }
 
 body.dark div.score-hilite {
@@ -552,8 +553,15 @@ body.dark div.score-board {
 }
 
 body.dark div.answer-container > div {
+	color: #555;
 	background-color: #333;
-	border-color: #666;
+	border-color: #555;
+}
+
+body.dark div.active div.answer-container > div {
+	color: #ccc;
+	background-color: #333;
+	border-color: #ccc;
 }
 
 body.dark div.active div.answer-container > div:hover {
