@@ -91,7 +91,7 @@ function register(): void {
 		totalScore: number = 0;
 		totalRecord: number = 0;
 
-		constructor(parsed?: any, dayNo?: Number, weekNo?: Number) {
+		constructor(parsed?: any, okDay?: boolean, okWeek?: boolean) {
 			if (!parsed)
 				return;
 			if (typeof(parsed.hiScore) === 'number') {
@@ -104,15 +104,13 @@ function register(): void {
 				if (typeof(parsed.totalRecord) === 'number')
 					this.totalRecord = parsed.totalRecord;
 			}
-			if (typeof(parsed.dayNo) === 'number' && typeof(parsed.dayScore) === 'number'
-					&& typeof(parsed.dayGames) === 'number' && parsed.dayNo === dayNo) {
+			if (okDay) {
 				this.dayScore = parsed.dayScore;
 				this.dayGames = parsed.dayGames;
 				if (typeof(parsed.dayRecord) === 'number')
 					this.dayRecord = parsed.dayRecord;
 			}
-			if (typeof(parsed.weekNo) === 'number' && typeof(parsed.weekScore) === 'number'
-					&& typeof(parsed.weekGames) === 'number' && parsed.weekNo === weekNo) {
+			if (okWeek) {
 				this.weekScore = parsed.weekScore;
 				this.weekGames = parsed.weekGames;
 				if (typeof(parsed.weekRecord) === 'number')
@@ -134,13 +132,15 @@ function register(): void {
 			const stored = localStorage.getItem('automath.scoreInfo.' + userId);
 			const parsed = stored ? JSON.parse(stored) : undefined;
 			if (parsed) {
+				const okDay = typeof(parsed.dayNo) === 'number' && parsed.dayNo === this.dayNo;
+				const okWeek = typeof(parsed.weekNo) === 'number' && parsed.weekNo === this.weekNo;
 				if (parsed.items && typeof(parsed.items) === "object") {
 					for (const opType in parsed.items) {
 						const parsedItem = parsed.items[opType];
-						this.items[opType] = new ScoreItem(parsedItem, this.dayNo, this.weekNo);
+						this.items[opType] = new ScoreItem(parsedItem, okDay, okWeek);
 					}
 				} else if (parsed.hiScore || parsed.totalRecord) {
-					this.items["add"] = new ScoreItem(parsed, this.dayNo, this.weekNo);
+					this.items["add"] = new ScoreItem(parsed, okDay, okWeek);
 				}
 			}
 			const types = ["add", "subtract", "multiply", "divide"];
@@ -148,7 +148,7 @@ function register(): void {
 				if (!this.items[opType])
 					this.items[opType] = new ScoreItem();
 			}
-	}
+		}
 
 		prepareNewGame() {
 			const dayNo = getDayNo();

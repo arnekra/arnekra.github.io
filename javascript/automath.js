@@ -65,7 +65,7 @@ function register() {
     };
     var currentOpType = "add";
     class ScoreItem {
-        constructor(parsed, dayNo, weekNo) {
+        constructor(parsed, okDay, okWeek) {
             this.dayGames = 0;
             this.dayScore = 0;
             this.dayRecord = 0;
@@ -88,15 +88,13 @@ function register() {
                 if (typeof (parsed.totalRecord) === 'number')
                     this.totalRecord = parsed.totalRecord;
             }
-            if (typeof (parsed.dayNo) === 'number' && typeof (parsed.dayScore) === 'number'
-                && typeof (parsed.dayGames) === 'number' && parsed.dayNo === dayNo) {
+            if (okDay) {
                 this.dayScore = parsed.dayScore;
                 this.dayGames = parsed.dayGames;
                 if (typeof (parsed.dayRecord) === 'number')
                     this.dayRecord = parsed.dayRecord;
             }
-            if (typeof (parsed.weekNo) === 'number' && typeof (parsed.weekScore) === 'number'
-                && typeof (parsed.weekGames) === 'number' && parsed.weekNo === weekNo) {
+            if (okWeek) {
                 this.weekScore = parsed.weekScore;
                 this.weekGames = parsed.weekGames;
                 if (typeof (parsed.weekRecord) === 'number')
@@ -114,14 +112,16 @@ function register() {
             const stored = localStorage.getItem('automath.scoreInfo.' + userId);
             const parsed = stored ? JSON.parse(stored) : undefined;
             if (parsed) {
+                const okDay = typeof (parsed.dayNo) === 'number' && parsed.dayNo === this.dayNo;
+                const okWeek = typeof (parsed.weekNo) === 'number' && parsed.weekNo === this.weekNo;
                 if (parsed.items && typeof (parsed.items) === "object") {
                     for (const opType in parsed.items) {
                         const parsedItem = parsed.items[opType];
-                        this.items[opType] = new ScoreItem(parsedItem, this.dayNo, this.weekNo);
+                        this.items[opType] = new ScoreItem(parsedItem, okDay, okWeek);
                     }
                 }
                 else if (parsed.hiScore || parsed.totalRecord) {
-                    this.items["add"] = new ScoreItem(parsed, this.dayNo, this.weekNo);
+                    this.items["add"] = new ScoreItem(parsed, okDay, okWeek);
                 }
             }
             const types = ["add", "subtract", "multiply", "divide"];
