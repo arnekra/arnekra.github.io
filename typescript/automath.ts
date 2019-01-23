@@ -4,6 +4,7 @@ function register(): void {
 	const dialogMask = document.getElementById("dialog-mask") as HTMLElement;
 	const settingsDiv = document.getElementById("settings") as HTMLElement;
 	const outerUserButton = (document.getElementById("user") as HTMLElement);
+	const closeUserDialog = (document.getElementById("close-user-dialog") as HTMLElement);
 	let answerRowCount: number = 2;
 	let remainingTime = 0;
 	let score = 0;
@@ -457,10 +458,12 @@ function register(): void {
 			currentScoreInfo.prepareNewGame();
 	});
 
-	dialogMask.addEventListener("click", function() {
+	const closeUserDialogClickHandler = function() {
 		dialogMask.setAttribute("class", "hidden");
 		settingsDiv.setAttribute("class", "hidden");
-	});
+	};
+	dialogMask.addEventListener("click", closeUserDialogClickHandler);
+	closeUserDialog.addEventListener("click", closeUserDialogClickHandler);
 }
 
 if (document.getElementById("a1") != null) {

@@ -5,6 +5,7 @@ function register() {
     const dialogMask = document.getElementById("dialog-mask");
     const settingsDiv = document.getElementById("settings");
     const outerUserButton = document.getElementById("user");
+    const closeUserDialog = document.getElementById("close-user-dialog");
     let answerRowCount = 2;
     let remainingTime = 0;
     let score = 0;
@@ -416,10 +417,12 @@ function register() {
         if (currentScoreInfo)
             currentScoreInfo.prepareNewGame();
     });
-    dialogMask.addEventListener("click", function () {
+    const closeUserDialogClickHandler = function () {
         dialogMask.setAttribute("class", "hidden");
         settingsDiv.setAttribute("class", "hidden");
-    });
+    };
+    dialogMask.addEventListener("click", closeUserDialogClickHandler);
+    closeUserDialog.addEventListener("click", closeUserDialogClickHandler);
 }
 if (document.getElementById("a1") != null) {
     register();

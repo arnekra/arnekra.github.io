@@ -9,6 +9,10 @@ body {
 	width: 100%;
 	height: 100%;
 	margin: 0;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 div {
@@ -107,7 +111,7 @@ div.user-container {
 }
 
 div.user-container > div, div.button {
-	width: 22%;
+	width: 30%;
 	font-size: 3vw;
 	text-align: center;
 	margin:1%;
@@ -345,7 +349,20 @@ body.light div.answer-container > div.success {
 	height: 3vw;
 	width: 100%;
 	text-align: center;
-	border-radius: 9.5px;
+	border-radius: 0.5vw;
+	position: relative;
+}
+
+svg {
+	cursor: pointer;
+}
+
+body.light svg {
+	stroke:#111;
+}
+
+body.light svg:hover {
+	stroke:#eee;
 }
 
 body.light .dialog-title {
@@ -356,7 +373,7 @@ body.light .dialog-title {
 .dialog {
 	height: 100%;
 	width: 100%;
-	border-radius: 10px;
+	border-radius: 0.55vw;
 	border-width: 2px;
 	border-style: solid;
 }
