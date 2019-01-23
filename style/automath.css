@@ -1,4 +1,3 @@
-
 html {
 	width: 100%;
 	height: 100%;
@@ -126,28 +125,8 @@ div.button {
 	cursor: pointer;
 }
 
-body.light div.button {
-	background-color: #888;
-}
-
-body.light div.button:hover {
-	background-color: #444;
-	border-color: #000;
-	color: #000;
-}
-
 div.user-container > div:not(.selected) {
 	cursor: pointer;
-}
-
-body.light div.user-container > div.selected {
-	background-color: green;
-}
-
-body.light div.user-container > div:hover:not(.selected) {
-	background-color: #999;
-	border-color: #000;
-	color: #000;
 }
 
 div.score-table {
@@ -197,16 +176,11 @@ div.ready div.start, div.ready div.user {
 }
 
 div.start {
-	background-color: #080;
 	visibility: hidden;
 }
 
 div.ready div.start {
 	visibility: inherit;
-}
-
-div.start:hover {
-	background-color: #0c0;
 }
 
 div.op-select {
@@ -217,7 +191,15 @@ div.op-select {
 	height: 5vw;
 }
 
-div.op-select > div {
+div.style-select {
+	position: absolute;
+	bottom: 0px;
+	left: 46.1vw;
+	width: 8vw;
+	height: 4vw;
+}
+
+div.op-select > div, div.style-select > div {
 	width:3vw;
 	height:3vw;
 	padding-top: 0.2vw;
@@ -231,54 +213,12 @@ div.op-select > div {
 	box-sizing: border-box;
 }
 
-div.op-select > div:not(.selected) {
+div.op-select > div:not(.selected), div.style-select > div:not(.selected) {
 	cursor: pointer;
 }
 
-body.light div.op-select div:not(.selected) {
-	color: #222;
-	border-color: #222;
-	background-color: #ccc;
-}
-
-body.light div.op-select > div.selected {
-	background-color: green;
-	color: white;
-	border-color: white;
-}
-
-body.light div.op-select > div:hover:not(.selected) {
-	background-color: #999;
-	border-color: #000;
-	color: #000;
-}
-
-body.light div.active div.op-select > div:not(.selected), body.light div.inactive div.op-select > div:not(.selected) {
-	color: #aaa;
-	background-color: #eee;
-	border-color: #aaa;
+div.active div.op-select > div:not(.selected), div.inactive div.op-select > div:not(.selected) {
 	pointer-events: none;
-}
-
-div.active div.user {
-	background-color: #400;
-	color: #888;
-	border-color: #888;
-}
-
-div.inactive div.user {
-	background-color: #400;
-	color: #888;
-	border-color: #888;
-}
-
-div.ready div.user {
-	background-color: #D00;
-	color: #000;
-}
-
-div.ready div.user:hover {
-	background-color: #F22;
 }
 
 div.time {
@@ -300,39 +240,6 @@ div.score, div.score-hilite {
 	padding:1vw;
 	box-sizing: border-box;
 	float: left;
-}
-
-body.light div.task-container {
-	width: 100%;
-	background-color: #eee;
-}
-
-body.light div.active {
-	color: #333;
-	border-color: #333;
-}
-
-body.light div.inactive, div.ready {
-	color: #ccc;
-	border-color: #ccc;
-}
-
-body.light div.answer-container > div.error {
-	animation:blinkingErrorLight 0.8s infinite;
-}
-
-@keyframes blinkingErrorLight{
-	0%{		background-color: red;	}
-	50%{	background-color: #ddd;	}
-	100%{	background-color: red;	}
-}
-
-body.light div.answer-container > div.correct {
-	background-color: green;
-}
-
-body.light div.answer-container > div.success {
-	animation:blinkingSuccessLight 0.8s infinite;
 }
 
 #dialog-mask {
@@ -357,19 +264,6 @@ svg {
 	cursor: pointer;
 }
 
-body.light svg {
-	stroke:#111;
-}
-
-body.light svg:hover {
-	stroke:#eee;
-}
-
-body.light .dialog-title {
-	color: #111;
-	background-color: #888;
-}
-
 .dialog {
 	height: 100%;
 	width: 100%;
@@ -377,14 +271,6 @@ body.light .dialog-title {
 	border-width: 2px;
 	border-style: solid;
 }
-
-body.light .dialog {
-	background-color: #ccc;
-	border-color: #fff;
-	color: #333;
-	font-size: 2vw;
-}
-
 
 #settings {
 	position: absolute;
@@ -404,22 +290,95 @@ body.light .dialog {
 	visibility: inherit;
 	opacity: 1;
 	transition: opacity 0.3s linear;
-  }
+}
 
-@keyframes blinkingSuccessLight{
-	0%{		background-color: green;	}
-	50%{	background-color: #ddd;	}
-	100%{	background-color: green;	}
+/*---------------------------------------------*/
+/* Light styles                                */
+/*---------------------------------------------*/
+
+body.light div.active div.user {
+	background-color: #400;
+	color: #888;
+	border-color: #888;
+}
+
+body.light div.inactive div.user {
+	background-color: #400;
+	color: #888;
+	border-color: #888;
+}
+
+body.light div.ready div.user {
+	background-color: #D00;
+	color: #000;
+}
+
+body.light div.ready div.user:hover {
+	background-color: #F22;
+}
+
+body.light div.start {
+	background-color: #080;
+}
+
+body.light div.start:hover {
+	background-color: #0c0;
+}
+
+body.light div.task-container {
+	width: 100%;
+	background-color: #eee;
+}
+
+body.light div.active {
+	color: #333;
+	border-color: #333;
+}
+
+body.light div.inactive, body.light div.ready {
+	color: #ccc;
+	border-color: #ccc;
+}
+
+body.light div.answer-container > div.error {
+	animation:blinkingErrorLight 0.8s infinite;
+}
+
+body.light div.answer-container > div.correct {
+	background-color: green;
+}
+
+body.light div.answer-container > div.success {
+	animation:blinkingSuccessLight 0.8s infinite;
+}
+
+body.light div.op-select div:not(.selected), body.light div.style-select div:not(.selected) {
+	color: #222;
+	border-color: #222;
+	background-color: #ccc;
+}
+
+body.light div.op-select > div.selected, body.light div.style-select > div.selected {
+	background-color: green;
+	color: white;
+	border-color: white;
+}
+
+body.light div.op-select > div:hover:not(.selected), body.light div.style-select > div:hover:not(.selected) {
+	background-color: #999;
+	border-color: #000;
+	color: #000;
+}
+
+body.light div.active div.op-select > div:not(.selected), body.light div.inactive div.op-select > div:not(.selected) {
+	color: #aaa;
+	background-color: #eee;
+	border-color: #aaa;
+	pointer-events: none;
 }
 
 body.light div.score-hilite {
 	animation:blinkingHiliteScoreLight 0.8s infinite;
-}
-
-@keyframes blinkingHiliteScoreLight{
-	0%{		color: green;	}
-	50%{	color: #ddd;	}
-	100%{	color: green;	}
 }
 
 body.light div.score-board {
@@ -434,4 +393,230 @@ body.light div.active div.answer-container > div:hover {
 	background-color: #999;
 	border-color: #000;
 	color: #000;
+}
+
+body.light .dialog {
+	background-color: #ccc;
+	border-color: #fff;
+	color: #333;
+	font-size: 2vw;
+}
+
+body.light svg {
+	stroke:#111;
+}
+
+body.light svg:hover {
+	stroke:#eee;
+}
+
+body.light .dialog-title {
+	color: #111;
+	background-color: #888;
+}
+
+body.light div.user-container > div.selected {
+	background-color: green;
+}
+
+body.light div.user-container > div:hover:not(.selected) {
+	background-color: #999;
+	border-color: #000;
+	color: #000;
+}
+
+body.light div.button {
+	background-color: #888;
+}
+
+body.light div.button:hover {
+	background-color: #444;
+	border-color: #000;
+	color: #000;
+}
+
+@keyframes blinkingErrorLight{
+	0%{		background-color: red;	}
+	50%{	background-color: #ddd;	}
+	100%{	background-color: red;	}
+}
+
+@keyframes blinkingSuccessLight{
+	0%{		background-color: green;	}
+	50%{	background-color: #ddd;	}
+	100%{	background-color: green;	}
+}
+
+@keyframes blinkingHiliteScoreLight{
+	0%{		color: green;	}
+	50%{	color: #ddd;	}
+	100%{	color: green;	}
+}
+
+/*---------------------------------------------*/
+/* Dark styles                                */
+/*---------------------------------------------*/
+
+body.dark {
+	background-color: #111;
+	color: #ccc;
+}
+
+body.dark div.active div.user, body.dark div.inactive div.user {
+	background-color: #200;
+	color: #666;
+	border-color: #666;
+}
+
+body.dark div.ready div.user {
+	background-color: #800;
+	color: #ccc;
+}
+
+body.dark div.ready div.user:hover {
+	background-color: #d00;
+	color: #fff;
+}
+
+body.dark div.start {
+	background-color: #060;
+	color: #ccc;
+}
+
+body.dark div.start:hover {
+	background-color: #0a0;
+	color: #fff;
+}
+
+body.dark div.task-container {
+	width: 100%;
+	background-color: #222;
+}
+
+body.dark div.active {
+	color: #ccc;
+	border-color: #ccc;
+}
+
+body.dark div.inactive, body.dark div.ready {
+	color: #666;
+	border-color: #666;
+}
+
+body.dark div.answer-container > div.error {
+	animation:blinkingErrorDark 0.8s infinite;
+	color: #ccc;
+}
+
+body.dark div.answer-container > div.correct {
+	background-color: green;
+	color: #ccc;
+}
+
+body.dark div.answer-container > div.success {
+	animation:blinkingSuccessDark 0.8s infinite;
+	color: #ccc;
+}
+
+body.dark div.op-select div:not(.selected), body.dark div.style-select div:not(.selected) {
+	color: #ccc;
+	border-color: #ccc;
+	background-color: #444;
+}
+
+body.dark div.op-select > div.selected, body.dark div.style-select > div.selected {
+	background-color: green;
+	color: white;
+	border-color: white;
+}
+
+body.dark div.op-select > div:hover:not(.selected), body.dark div.style-select > div:hover:not(.selected) {
+	background-color: #666;
+	border-color: #fff;
+	color: #fff;
+}
+
+body.dark div.active div.op-select > div:not(.selected), body.dark div.inactive div.op-select > div:not(.selected) {
+	color: #666;
+	background-color: #333;
+	border-color: #666;
+	pointer-events: none;
+}
+
+body.dark div.score-hilite {
+	animation:blinkingHiliteScoreDark 0.8s infinite;
+}
+
+body.dark div.score-board {
+	color: #ccc;
+}
+
+body.dark div.answer-container > div {
+	background-color: #333;
+	border-color: #666;
+}
+
+body.dark div.active div.answer-container > div:hover {
+	background-color: #666;
+	border-color: #fff;
+	color: #fff;
+}
+
+body.dark .dialog {
+	background-color: #333;
+	border-color: #ccc;
+	color: #ccc;
+	font-size: 2vw;
+}
+
+body.dark svg {
+	stroke:#bbb;
+}
+
+body.dark svg:hover {
+	stroke:#fff;
+}
+
+body.dark .dialog-title {
+	color: #bbb;
+	background-color: #444;
+}
+
+body.dark div.user-container > div.selected {
+	background-color: green;
+}
+
+body.dark div.user-container > div:hover:not(.selected) {
+	background-color: #666;
+	border-color: #fff;
+	color: #fff;
+}
+
+body.dark div.button {
+	background-color: #333;
+	border-color: #ccc;
+}
+
+body.dark div.button:hover {
+	background-color: #666;
+	border-color: #fff;
+	color: #fff;
+}
+
+@keyframes blinkingErrorDark {
+	0%{		background-color: red;	}
+	50%{	background-color: #222;	}
+	100%{	background-color: red;	}
+}
+
+@keyframes blinkingSuccessDark {
+	0%{		background-color: green;	}
+	50%{	background-color: #222;	}
+	100%{	background-color: green;	}
+}
+
+@keyframes blinkingHiliteScoreDark {
+	0%{		color: green;	}
+	50%{	color: #ccc;	}
+	100%{	color: green;	}
 }

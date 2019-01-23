@@ -354,8 +354,30 @@ function register() {
     }
     updateDynamicRowCount();
     window.addEventListener("resize", updateDynamicRowCount);
+    // Activate the dark/light selector buttons
+    const styleButtons = document.querySelectorAll("div.style-select > div");
+    const loadedBodyClass = localStorage.getItem("automath.body-class") || "dark";
+    document.body.setAttribute("class", loadedBodyClass);
+    styleButtons.forEach((styleButton, key, parent) => {
+        const bodyClass = styleButton.getAttribute("data-body-class") || "light";
+        if (bodyClass === loadedBodyClass) {
+            styleButton.setAttribute("class", "selected");
+        }
+        else {
+            styleButton.removeAttribute("class");
+        }
+        styleButton.addEventListener("click", (ev) => {
+            if (styleButton.getAttribute("class") == "selected")
+                return;
+            const oldStyleBtn = document.querySelector("div.style-select > div.selected");
+            oldStyleBtn.removeAttribute("class");
+            styleButton.setAttribute("class", "selected");
+            document.body.setAttribute("class", bodyClass);
+            localStorage.setItem("automath.body-class", bodyClass);
+        });
+    });
     // activate the operator selector buttons
-    let opButtons = document.querySelectorAll("div.op-select > div");
+    const opButtons = document.querySelectorAll("div.op-select > div");
     const clipperDiv = document.getElementById("clipper");
     opButtons.forEach((opButton, key, parent) => {
         opButton.addEventListener("click", (ev) => {
