@@ -56,14 +56,27 @@ function register() {
         const answer = b;
         return { left: left, right: right, answer: answer, scoreValue: a + b };
     }
+    function setupComboTask(rowCount) {
+        const comb = Math.round(Math.random() * 441);
+        const a = Math.floor(comb / 21) - 10; // number between 0 an 21
+        const b = comb % 21 - 10; // number between - and 10
+        const left = a;
+        const right = b;
+        const op = Math.random() >= 0.5 ? "+" : "-";
+        const answer = op === "+" ? a + b : a - b;
+        const minusCount = (a < 0 ? 1 : 0) + (b < 0 ? 1 : 0) + (op === "-" ? 1 : 0);
+        return { left: left, right: right, answer: answer, scoreValue: Math.abs(a) + Math.abs(b) + minusCount, op };
+    }
     ;
     const operatorInfoTab = {
         add: { text: " + ", setupTask: setupAddTask },
         subtract: { text: " - ", setupTask: setupSubtractTask },
         multiply: { text: " * ", setupTask: setupMultiplyTask },
         divide: { text: " / ", setupTask: setupDivideTask },
+        combo: { text: " +/- ", setupTask: setupComboTask },
     };
-    var currentOpType = "add";
+    Object.freeze(operatorInfoTab);
+    let currentOpType = "add";
     class ScoreItem {
         constructor(parsed, okDay, okWeek) {
             this.dayGames = 0;
@@ -124,7 +137,7 @@ function register() {
                     this.items["add"] = new ScoreItem(parsed, okDay, okWeek);
                 }
             }
-            const types = ["add", "subtract", "multiply", "divide"];
+            const types = ["add", "subtract", "multiply", "divide", "combo"];
             for (const opType of types) {
                 if (!this.items[opType])
                     this.items[opType] = new ScoreItem();
@@ -297,7 +310,7 @@ function register() {
                     const name = prompt(texts.enterNamePrompt);
                     if (!name)
                         return;
-                    if (name.substr(0, 1) === "!") {
+                    if (name.substring(0, 1) === "!") {
                         handleCommand(container, userInfo, name);
                     }
                     else {
@@ -318,12 +331,16 @@ function register() {
         }
     }
     function setupTask() {
+        var _a;
         const operatorInfo = operatorInfoTab[currentOpType];
         const task = operatorInfo.setupTask(answerRowCount);
         taskDiv.setAttribute("answer", task.answer.toString());
         taskDiv.setAttribute("score-value", task.scoreValue.toString());
         appDiv.setAttribute("class", "active");
-        taskDiv.innerText = task.left.toString() + operatorInfo.text + task.right.toString() + " =";
+        const leftOp = task.left < 0 ? `(${task.left})` : `${task.left}`;
+        const rightOp = task.right < 0 ? `(${task.right})` : `${task.right}`;
+        const opText = (_a = task.op) !== null && _a !== void 0 ? _a : operatorInfo.text;
+        taskDiv.innerText = `${leftOp} ${opText} ${rightOp} =`;
     }
     function updateScore() {
         let scoreDiv = document.getElementById("score");
@@ -424,29 +441,33 @@ function register() {
     // activate the operator selector buttons
     const opButtons = document.querySelectorAll("div.op-select > div");
     const clipperDiv = document.getElementById("clipper");
-    opButtons.forEach((opButton, key, parent) => {
-        opButton.addEventListener("click", (ev) => {
+    Object.keys(operatorInfoTab).forEach(key => {
+        const opType = key;
+        const opInfo = operatorInfoTab[opType];
+        const opButton = document.getElementById(opType);
+        opButton === null || opButton === void 0 ? void 0 : opButton.addEventListener("click", (ev) => {
             if (opButton.getAttribute("class") == "selected")
                 return;
             const oldOpBtn = document.querySelector("div.op-select > div.selected");
             oldOpBtn.removeAttribute("class");
             opButton.setAttribute("class", "selected");
             clipperDiv.setAttribute("class", opButton.getAttribute("data-rows") || "");
-            currentOpType = opButton.id;
-            const opInfo = operatorInfoTab[currentOpType];
+            currentOpType = opType;
             taskDiv.innerText = "?" + opInfo.text + "? =";
             updateScoreTable();
         });
     });
-    for (let i = 0; i <= 90; ++i) {
-        let btn = document.getElementById("a" + i);
+    for (let i = -20; i <= 90; ++i) {
+        const btnId = i < 0 ? `minus${-i}` : `a${i}`;
+        let btn = document.getElementById(btnId);
         btn.addEventListener("click", function (ev) {
             if (appDiv.getAttribute("class") == "inactive")
                 return;
             appDiv.setAttribute("class", "inactive");
-            let answer = taskDiv.getAttribute("answer") || "";
-            let ok = i.toString() == answer;
-            let successButton = ok ? btn : document.getElementById("a" + answer);
+            const answer = taskDiv.getAttribute("answer") || "";
+            const ok = i.toString() == answer;
+            const successId = answer.startsWith("-") ? `minus${answer.substring(1)}` : `a${answer}`;
+            const correctButton = ok ? btn : document.getElementById(successId);
             if (ok) {
                 const scoreValue = parseInt(taskDiv.getAttribute("score-value") || "0");
                 btn.setAttribute("class", "success");
@@ -455,7 +476,7 @@ function register() {
             }
             else {
                 btn.setAttribute("class", "error");
-                successButton.setAttribute("class", "correct");
+                correctButton.setAttribute("class", "correct");
                 score = Math.max(0, score - 5);
                 failCount += 1;
             }
@@ -463,7 +484,7 @@ function register() {
             setTimeout(function () {
                 btn.removeAttribute("class");
                 if (!ok) {
-                    successButton.removeAttribute("class");
+                    correctButton.removeAttribute("class");
                 }
                 if (remainingTime > 0)
                     setupTask();
@@ -472,7 +493,7 @@ function register() {
     }
     setupUserSupport();
     document.getElementById("start").addEventListener("click", function () {
-        if (appDiv.getAttribute("class") != "ready")
+        if (appDiv.getAttribute("class") !== "ready")
             return;
         score = 0;
         successCount = 0;

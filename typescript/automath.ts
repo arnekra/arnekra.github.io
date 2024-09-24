@@ -34,6 +34,7 @@ function register(): void {
 		right: number;
 		answer: number;
 		scoreValue: number;
+		op?: string
 	}
 	function setupAddTask(rowCount: number): TaskInfo {
 		const comb = Math.floor(Math.random() * 100) + 10;
@@ -68,6 +69,18 @@ function register(): void {
 		const answer = b;
 		return { left: left, right: right, answer: answer, scoreValue: a + b };
 	}
+	function setupComboTask(rowCount: number): TaskInfo {
+		const comb = Math.round(Math.random() * 441);
+		const a = Math.floor(comb / 21) - 10; // number between 0 an 21
+		const b = comb % 21 - 10; // number between - and 10
+		const left = a;
+		const right = b;
+		const op = Math.random() >= 0.5 ? "+" : "-"
+		const answer = op === "+" ? a + b : a - b ;
+		const minusCount = (a < 0 ? 1 : 0) + (b < 0 ? 1 : 0) + (op === "-" ? 1 : 0)
+		return { left: left, right: right, answer: answer, scoreValue: Math.abs(a) + Math.abs(b) + minusCount, op };
+	}
+
 	interface OperatorInfo {
 		readonly text: string;
 		setupTask(rowCount: number) : TaskInfo;
@@ -76,9 +89,12 @@ function register(): void {
 		add: { text: " + ", setupTask: setupAddTask } as OperatorInfo,
 		subtract: { text: " - ", setupTask: setupSubtractTask } as OperatorInfo,
 		multiply: { text: " * ", setupTask: setupMultiplyTask } as OperatorInfo,
-		divide: { text: " / ", setupTask: setupDivideTask} as OperatorInfo,
-	}
-	var currentOpType = "add";
+		divide: { text: " / ", setupTask: setupDivideTask } as OperatorInfo,
+		combo: { text: " +/- ", setupTask: setupComboTask } as OperatorInfo,
+	} as const
+	Object.freeze(operatorInfoTab)
+	type OpType = keyof typeof operatorInfoTab
+	let currentOpType: keyof typeof operatorInfoTab = "add";
 
 	class ScoreItem {
 		dayGames: number = 0;
@@ -123,7 +139,7 @@ function register(): void {
 		id: string;
 		dayNo: number;
 		weekNo: number = 0;
-		items: { [key: string]: ScoreItem} = {};
+		items: { [key: string]: ScoreItem } = {};
 
 		constructor(userId: string) {
 			this.id = userId;
@@ -143,7 +159,7 @@ function register(): void {
 					this.items["add"] = new ScoreItem(parsed, okDay, okWeek);
 				}
 			}
-			const types = ["add", "subtract", "multiply", "divide"];
+			const types: OpType[] = ["add", "subtract", "multiply", "divide", "combo"];
 			for (const opType of types) {
 				if (!this.items[opType])
 					this.items[opType] = new ScoreItem();
@@ -327,7 +343,7 @@ function register(): void {
 					const name = prompt(texts.enterNamePrompt);
 					if (!name)
 						return;
-					if (name.substr(0, 1) === "!") {
+					if (name.substring(0, 1) === "!") {
 						handleCommand(container, userInfo, name);
 					} else {
 						const idBase = name.toLocaleLowerCase();
@@ -348,12 +364,15 @@ function register(): void {
 	}
 
 	function setupTask(): void {
-		const operatorInfo = (operatorInfoTab as any)[currentOpType] as OperatorInfo;
+		const operatorInfo = operatorInfoTab[currentOpType];
 		const task = operatorInfo.setupTask(answerRowCount);
 		taskDiv.setAttribute("answer", task.answer.toString());
 		taskDiv.setAttribute("score-value", task.scoreValue.toString())
 		appDiv.setAttribute("class", "active");
-		taskDiv.innerText = task.left.toString() + operatorInfo.text + task.right.toString() + " ="
+		const leftOp = task.left < 0 ? `(${task.left})` : `${task.left}`
+		const rightOp = task.right < 0 ? `(${task.right})` : `${task.right}`
+		const opText = task.op ?? operatorInfo.text
+		taskDiv.innerText = `${leftOp} ${opText} ${rightOp} =`
 	}
 
 	function updateScore() {
@@ -462,29 +481,33 @@ function register(): void {
 	// activate the operator selector buttons
 	const opButtons = document.querySelectorAll("div.op-select > div") as NodeListOf<HTMLDivElement>;
 	const clipperDiv = document.getElementById("clipper") as HTMLDivElement;
-	opButtons.forEach((opButton: HTMLDivElement, key: number, parent: NodeListOf<HTMLDivElement>) => {
-		opButton.addEventListener("click", (ev: MouseEvent): any => {
+	Object.keys(operatorInfoTab).forEach(key => {
+		const opType = key as OpType
+		const opInfo = operatorInfoTab[opType]
+		const opButton = document.getElementById(opType)
+		opButton?.addEventListener("click", (ev: MouseEvent): any => {
 			if (opButton.getAttribute("class") == "selected")
 				return;
 			const oldOpBtn = document.querySelector("div.op-select > div.selected") as HTMLDivElement;
 			oldOpBtn.removeAttribute("class");
 			opButton.setAttribute("class", "selected");
 			clipperDiv.setAttribute("class", opButton.getAttribute("data-rows") || "");
-			currentOpType = opButton.id;
-			const opInfo = (operatorInfoTab as any)[currentOpType] as OperatorInfo;
+			currentOpType = opType;
 			taskDiv.innerText = "?" + opInfo.text + "? =";
 			updateScoreTable();
 		});
-	});
-	for (let i = 0; i <= 90; ++i) {
-		let btn = document.getElementById("a" + i) as HTMLElement;
+	})
+	for (let i = -20; i <= 90; ++i) {
+		const btnId = i < 0 ? `minus${-i}` : `a${i}`
+		let btn = document.getElementById(btnId) as HTMLElement;
 		btn.addEventListener("click", function(this: HTMLElement, ev: MouseEvent): any {
 			if (appDiv.getAttribute("class") == "inactive")
 				return;
 			appDiv.setAttribute("class", "inactive");
-			let answer = taskDiv.getAttribute("answer") || "";
-			let ok = i.toString() == answer;
-			let successButton = ok ? btn : document.getElementById("a" + answer) as HTMLElement;
+			const answer = taskDiv.getAttribute("answer") || "";
+			const ok = i.toString() == answer;
+			const successId = answer.startsWith("-") ? `minus${answer.substring(1)}` : `a${answer}`
+			const correctButton = ok ? btn : document.getElementById(successId) as HTMLElement;
 			if (ok) {
 				const scoreValue = parseInt(taskDiv.getAttribute("score-value") || "0");
 				btn.setAttribute("class", "success");
@@ -492,7 +515,7 @@ function register(): void {
 				successCount += 1;
 			} else {
 				btn.setAttribute("class", "error");
-				successButton.setAttribute("class", "correct");
+				correctButton.setAttribute("class", "correct");
 				score = Math.max(0, score - 5);
 				failCount += 1;
 			}
@@ -500,7 +523,7 @@ function register(): void {
 			setTimeout(function() {
 				btn.removeAttribute("class");
 				if (!ok) {
-					successButton.removeAttribute("class");
+					correctButton.removeAttribute("class");
 				}
 				if (remainingTime > 0)
 					setupTask();
@@ -510,7 +533,7 @@ function register(): void {
 
 	setupUserSupport();
 	(document.getElementById("start") as HTMLElement).addEventListener("click", function() {
-		if (appDiv.getAttribute("class") != "ready")
+		if (appDiv.getAttribute("class") !== "ready")
 			return;
 		score = 0;
 		successCount = 0;

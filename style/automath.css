@@ -78,11 +78,21 @@ div.task-container {
 }
 
 #clipper > .answer-container {
-	top: -7.5vw;
+	top: -22.5vw;
 	transition: top 0.5s ease-in-out;
 }
 
 #clipper.row-0-and-1 > .answer-container {
+	top: -15vw;
+	transition: top 0.5s ease-in-out;
+}
+
+#clipper.combo-rows {
+	height: 37.5vw;
+	transition: height 0.5s ease-in-out;
+}
+
+#clipper.combo-rows > .answer-container {
 	top: 0vw;
 	transition: top 0.5s ease-in-out;
 }
@@ -152,7 +162,7 @@ div.answer-container > div {
 	pointer-events: none;
 }
 
-div.negative {
+div.spacing {
 	opacity: 0;
 	pointer-events: none;
 }
@@ -188,8 +198,8 @@ div.ready div.start {
 div.op-select {
 	position: absolute;
 	top: 0px;
-	left: 42.35vw;
-	width: 15.3vw;
+	left: 40.4vw;
+	width: 19.2vw;
 	height: 5vw;
 }
 
